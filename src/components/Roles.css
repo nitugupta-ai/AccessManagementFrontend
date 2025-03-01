@@ -1,0 +1,108 @@
+/* General Container Styling */
+.roles-container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Header */
+.roles-container h2 {
+    text-align: center;
+    color: #333;
+}
+
+/* Input & Button Container */
+.input-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    justify-content: center;
+}
+
+.role-input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.create-btn, .update-btn {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.create-btn:hover, .update-btn:hover {
+    background-color: #218838;
+}
+
+/* Table Styling */
+.table-container {
+    overflow-x: auto;
+}
+
+.roles-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.roles-table th, .roles-table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+}
+
+.roles-table th {
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+.roles-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.roles-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Action Buttons */
+.edit-btn {
+    background-color: #ffc107;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-right: 5px;
+}
+
+.edit-btn:hover {
+    background-color: #e0a800;
+}
+
+.delete-btn {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.delete-btn:hover {
+    background-color: #c82333;
+}
+
+/* No Actions Text */
+.no-actions {
+    color: gray;
+}

@@ -1,0 +1,89 @@
+/* Full-Screen Container */
+.dashboard-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    width: 100%;
+    background: linear-gradient(to right, #edf2f7, #e2e8f0);
+    padding: 20px;
+}
+
+/* Dashboard Card */
+.dashboard-card {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+    width: 100%;
+    max-width: 900px;
+    text-align: center;
+}
+
+/* Title */
+.dashboard-title {
+    font-size: 32px;
+    font-weight: bold;
+    color: #1a202c;
+    margin-bottom: 10px;
+}
+
+/* Role Info */
+.dashboard-role {
+    font-size: 18px;
+    color: #4a5568;
+    font-weight: 500;
+    margin-bottom: 20px;
+}
+
+/* Sections */
+.dashboard-section {
+    background: #f9fafb;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.dashboard-section h3 {
+    font-size: 22px;
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 10px;
+}
+
+/* Logout Button */
+.logout-button {
+    width: 200px;
+    padding: 12px;
+    font-size: 18px;
+    font-weight: bold;
+    background: #e53e3e;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.logout-button:hover {
+    background: #c53030;
+    transform: scale(1.05);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .dashboard-card {
+        width: 90%;
+        padding: 20px;
+    }
+
+    .dashboard-title {
+        font-size: 28px;
+    }
+
+    .logout-button {
+        font-size: 16px;
+    }
+}
