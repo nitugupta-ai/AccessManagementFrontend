@@ -1,0 +1,62 @@
+/* Centering the form */
+.register-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: #f3f4f6; /* Tailwind's bg-gray-100 */
+}
+
+/* Heading Style */
+.register-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    color: #333;
+}
+
+/* Form Styling */
+.register-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 300px;
+    padding: 1.5rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Input Fields */
+.register-input {
+    padding: 0.5rem;
+    border: 1px solid #d1d5db;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+/* Input Focus Effect */
+.register-input:focus {
+    outline: none;
+    border-color: #10b981; /* Tailwind's green-500 */
+    box-shadow: 0 0 5px rgba(16, 185, 129, 0.5);
+}
+
+/* Submit Button */
+.register-button {
+    padding: 0.5rem;
+    background-color: #10b981;
+    color: white;
+    font-size: 1rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+/* Hover Effect */
+.register-button:hover {
+    background-color: #059669; /* Tailwind's green-600 */
+}
