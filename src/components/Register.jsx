@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import API from "../services/api";
+import "./Register.css"
 
 const Register = () => {
     const [formData, setFormData] = useState({ name: "", email: "", password: "" });
