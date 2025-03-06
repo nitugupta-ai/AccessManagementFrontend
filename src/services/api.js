@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API = axios.create({ baseURL: "http://localhost:5001/api" });
+const API = axios.create({ baseURL: "http://localhost:8080/api" });
 
 // Attach JWT Token to Requests
 API.interceptors.request.use((req) => {
