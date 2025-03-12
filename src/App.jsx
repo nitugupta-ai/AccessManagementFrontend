@@ -9,6 +9,7 @@ import Modules from "./components/Modules.jsx";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
+import Forbidden from "./components/Forbidden.jsx";
 
 const App = () => {
     return (
@@ -24,6 +25,8 @@ const App = () => {
                 <Route path="/modules" element={<Modules />} />
                 <Route path="/roles" element={<Roles />} />
                 <Route path="/users" element={<Users />} />
+                <Route path="/forbidden" element={<Forbidden />} />
+
             </Routes>
         </Router>
     );

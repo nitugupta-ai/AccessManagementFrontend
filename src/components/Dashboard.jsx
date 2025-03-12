@@ -1,17 +1,18 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import API from "../services/api"; 
+import API from "../services/api";
 import Users from "./Users";
 import Roles from "./Roles";
 import Modules from "./Modules";
-import "./Dashboard.css"; // Import CSS
 import RolesModules from "./RolesModules";
+import "./Dashboard.css"; // Import CSS
 
 const Dashboard = () => {
     const navigate = useNavigate();
     const token = localStorage.getItem("token");
     const role = localStorage.getItem("role");
+    const userId = localStorage.getItem("userId"); // Store user ID
     const [accessibleModules, setAccessibleModules] = useState([]);
 
     useEffect(() => {
@@ -25,15 +26,22 @@ const Dashboard = () => {
         }
     }, [token, navigate]);
 
-    // ✅ Fetch modules assigned to the logged-in role
     const fetchRoleModules = async () => {
+        if (!role) return console.warn("Role is missing!");
+
         try {
-            const { data } = await API.get(`/role-modules/${role}`);
-            const moduleNames = data.map(({ module_name }) => module_name);
-            setAccessibleModules(moduleNames);
+            const response = await API.get(`/role-modules/${role}`);
+            console.log("API Response:", response.data); // ✅ Debug Log
+
+            const modulePermissions = response.data.reduce((acc, { module_name, permission }) => {
+                acc[module_name] = permission;
+                return acc;
+            }, {});
+
+            setAccessibleModules(modulePermissions);
         } catch (error) {
+            console.error("API Error:", error.response?.data || error.message);
             toast.error("Failed to load module access.");
-            console.error(error);
         }
     };
 
@@ -41,6 +49,7 @@ const Dashboard = () => {
     const handleLogout = () => {
         localStorage.removeItem("token");
         localStorage.removeItem("role");
+        localStorage.removeItem("userId");
         toast.info("Logged out successfully!");
         setTimeout(() => {
             navigate("/login");
@@ -55,28 +64,41 @@ const Dashboard = () => {
                     Role: <span className="font-semibold">{role || "Guest"}</span>
                 </p>
 
-                {/*  Manage Users Section (Only for Admin) */}
-                {role === "admin" && (
-                    <div className="dashboard-section">
-                        <Users />
-                    </div>
-                )}
-
-                {/* Manage Roles Section */}
-                {(role === "admin" || accessibleModules.includes("Roles")) && (
-                    <div className="dashboard-section">
-                        <Roles />
-                    </div>
-                )}
-
-                {/*  Manage Modules Section */}
-                {(role === "admin" || accessibleModules.includes("Modules")) && (
-                    <div className="dashboard-section">
-                        <Modules />
-                    </div>
-                )}
-
-                <RolesModules />
+                <div className="dashboard-content">
+                    {/* ✅ Admin Access - Full Control */}
+                    {role === "admin" ? (
+                        <>
+                            <div className="dashboard-section">
+                                <Users />
+                            </div>
+                            <div className="dashboard-section">
+                                <Roles />
+                            </div>
+                            <div className="dashboard-section">
+                                <Modules />
+                            </div>
+                            <div className="dashboard-section">
+                                <RolesModules />
+                            </div>
+                        </>
+                    ) : (
+                        <>
+                            <div className="dashboard-section">
+                                <Roles userId={userId} />
+                            </div>
+                            {accessibleModules["Modules"] && (
+                                <div className="dashboard-section">
+                                    <Modules />
+                                </div>
+                            )}
+                            {accessibleModules["RolesModules"] && (
+                                <div className="dashboard-section">
+                                    <RolesModules />
+                                </div>
+                            )}
+                        </>
+                    )}
+                </div>
 
                 <button onClick={handleLogout} className="logout-button">
                     Logout

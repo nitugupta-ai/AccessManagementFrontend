@@ -51,19 +51,26 @@ const RolesModules = () => {
             toast.error("Role and Module must be selected");
             return;
         }
-
+    
+        const requestData = { 
+            role_id: Number(selectedRole),  // Convert to number
+            module_ids: [Number(selectedModule)],  // Convert to array of numbers
+            permission: selectedPermission 
+        };
+    
+        console.log("Sending request to assign module:", requestData); // ✅ Debug
+    
         try {
-            await API.post("/role-modules", { 
-                role_id: selectedRole, 
-                module_id: selectedModule, 
-                permission: selectedPermission 
-            });
+            await API.post("/role-modules/assign", requestData);
             toast.success("Module assigned to role successfully");
             fetchRoleModules();
         } catch (error) {
+            console.error("Error response:", error.response?.data || error.message); // ✅ Debug backend response
             toast.error("Failed to assign module");
         }
     };
+    
+    
 
     return (
         <div className="roles-modules-container">
@@ -105,7 +112,7 @@ const RolesModules = () => {
                 </thead>
                 <tbody>
                     {roleModules.map((rm) => (
-                        <tr key={`role-mod-${rm.id}`}>
+                        <tr key={rm.id ? `role-mod-${rm.id}` : `fallback-key-${rm.role_id}-${rm.module_id}`}>
                             <td>{rm.role_name}</td>
                             <td>{rm.module_name}</td>
                             <td>{rm.permission}</td>

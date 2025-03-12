@@ -72,18 +72,3 @@
     transform: scale(1.05);
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-    .dashboard-card {
-        width: 90%;
-        padding: 20px;
-    }
-
-    .dashboard-title {
-        font-size: 28px;
-    }
-
-    .logout-button {
-        font-size: 16px;
-    }
-}

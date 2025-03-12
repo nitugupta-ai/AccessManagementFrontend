@@ -9,27 +9,30 @@ const Users = () => {
     const role = localStorage.getItem("role");
 
     useEffect(() => {
-        const fetchUsers = async () => {
-            try {
-                const response = await API.get("/users");
-                setUsers(Array.isArray(response.data) ? response.data : []);
-            } catch (error) {
-                toast.error("Failed to fetch users");
-            }
-        };
-        fetchUsers();
+        fetchUsers(); // ✅ Fetch users initially
     }, []);
 
+    // ✅ Fetch Users Function
+    const fetchUsers = async () => {
+        try {
+            const response = await API.get("/users");
+            setUsers(Array.isArray(response.data) ? response.data : []);
+        } catch (error) {
+            toast.error("Failed to fetch users");
+        }
+    };
+
+    // ✅ Fix: Fetch updated user list after adding
     const handleCreateUser = async () => {
         if (!newUser.name || !newUser.email || !newUser.password) {
             toast.error("All fields are required!");
             return;
         }
         try {
-            const response = await API.post("/users", newUser);
-            setUsers([...users, response.data]);
+            await API.post("/users/create", newUser);
             toast.success("User created successfully!");
             setNewUser({ name: "", email: "", password: "", role: "user" });
+            fetchUsers(); // ✅ Fetch users again after adding
         } catch (error) {
             toast.error("Failed to create user");
         }
@@ -37,20 +40,27 @@ const Users = () => {
 
     const handleDeleteUser = async (id) => {
         const loggedInUserId = localStorage.getItem("userId");
-
+    
         if (id.toString() === loggedInUserId) {
             toast.error("You cannot delete yourself as an admin!");
             return;
         }
-
+    
         try {
-            await API.delete(`/users/${id}`);
-            setUsers(users.filter((user) => user.id !== id));
+            const response = await API.delete(`/users/${id}`);
+    
+            if (response.data.error) {
+                toast.error(response.data.message); // 🚀 Show toast without redirecting
+                return;
+            }
+    
             toast.success("User deleted successfully");
+            fetchUsers(); // ✅ Refresh user list
         } catch (error) {
             toast.error("Failed to delete user");
         }
     };
+    
 
     return (
         <div className="users-container">
@@ -116,6 +126,7 @@ const Users = () => {
                             </tr>
                         ))}
                     </tbody>
+
                 </table>
             ) : (
                 <p>No users found</p>

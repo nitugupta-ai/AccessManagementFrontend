@@ -1,0 +1,40 @@
+.forbidden-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    text-align: center;
+    background-color: #f8d7da;
+    color: #721c24;
+    font-family: Arial, sans-serif;
+}
+
+.forbidden-title {
+    font-size: 6rem;
+    font-weight: bold;
+}
+
+.forbidden-subtitle {
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+.forbidden-text {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+}
+
+.forbidden-home-link {
+    text-decoration: none;
+    background-color: #721c24;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 1rem;
+    transition: background 0.3s;
+}
+
+.forbidden-home-link:hover {
+    background-color: #a94442;
+}
