@@ -6,8 +6,9 @@ import Users from "./Users";
 import Roles from "./Roles";
 import Modules from "./Modules";
 import RolesModules from "./RolesModules";
-import "./Dashboard.css"; // Import CSS
-
+import UserRoles from "./UserRoles.jsx"; 
+import "./Dashboard.css"; 
+import UserModules from "./UserModule.jsx";
 const Dashboard = () => {
     const navigate = useNavigate();
     const token = localStorage.getItem("token");
@@ -78,8 +79,12 @@ const Dashboard = () => {
                                 <Modules />
                             </div>
                             <div className="dashboard-section">
+                                <UserRoles /> 
+                            </div>
+                            <div className="dashboard-section">
                                 <RolesModules />
                             </div>
+                            
                         </>
                     ) : (
                         <>
@@ -96,6 +101,7 @@ const Dashboard = () => {
                                     <RolesModules />
                                 </div>
                             )}
+                            <UserModules />
                         </>
                     )}
                 </div>

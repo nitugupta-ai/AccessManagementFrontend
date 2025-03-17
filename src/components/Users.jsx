@@ -1,66 +1,27 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "react-toastify";
-import API from "../services/api";
-import "./Users.css"; // ✅ Import CSS
+import { useUser } from "../context/UserContext"; // ✅ Import User Context
+import "./Users.css"; 
 
 const Users = () => {
-    const [users, setUsers] = useState([]);
+    const { users, loading, createUser, deleteUser } = useUser(); // ✅ Use Context
     const [newUser, setNewUser] = useState({ name: "", email: "", password: "", role: "user" });
     const role = localStorage.getItem("role");
+    const loggedInUserId = localStorage.getItem("userId");
 
-    useEffect(() => {
-        fetchUsers(); // ✅ Fetch users initially
-    }, []);
-
-    // ✅ Fetch Users Function
-    const fetchUsers = async () => {
-        try {
-            const response = await API.get("/users");
-            setUsers(Array.isArray(response.data) ? response.data : []);
-        } catch (error) {
-            toast.error("Failed to fetch users");
-        }
-    };
-
-    // ✅ Fix: Fetch updated user list after adding
-    const handleCreateUser = async () => {
+    // ✅ Handle User Creation
+    const handleCreateUser = () => {
         if (!newUser.name || !newUser.email || !newUser.password) {
             toast.error("All fields are required!");
             return;
         }
-        try {
-            await API.post("/users/create", newUser);
-            toast.success("User created successfully!");
-            setNewUser({ name: "", email: "", password: "", role: "user" });
-            fetchUsers(); // ✅ Fetch users again after adding
-        } catch (error) {
-            toast.error("Failed to create user");
-        }
-    };
-
-    const handleDeleteUser = async (id) => {
-        const loggedInUserId = localStorage.getItem("userId");
-    
-        if (id.toString() === loggedInUserId) {
-            toast.error("You cannot delete yourself as an admin!");
+        if (newUser.password.length < 6) {
+            toast.error("Password must be at least 6 characters!");
             return;
         }
-    
-        try {
-            const response = await API.delete(`/users/${id}`);
-    
-            if (response.data.error) {
-                toast.error(response.data.message); // 🚀 Show toast without redirecting
-                return;
-            }
-    
-            toast.success("User deleted successfully");
-            fetchUsers(); // ✅ Refresh user list
-        } catch (error) {
-            toast.error("Failed to delete user");
-        }
+        createUser(newUser);
+        setNewUser({ name: "", email: "", password: "", role: "user" });
     };
-    
 
     return (
         <div className="users-container">
@@ -91,6 +52,7 @@ const Users = () => {
                         onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
                     >
                         <option value="user">User</option>
+                        <option value="admin">Admin</option>
                     </select>
                     <button className="create-user-btn" onClick={handleCreateUser}>
                         Create User
@@ -98,7 +60,9 @@ const Users = () => {
                 </div>
             )}
 
-            {users?.length > 0 ? (
+            {loading ? (
+                <p className="loading-text">Loading users...</p>
+            ) : users?.length > 0 ? (
                 <table className="user-table">
                     <thead>
                         <tr>
@@ -118,7 +82,7 @@ const Users = () => {
                                 <td>{user.role}</td>
                                 {role === "admin" && (
                                     <td>
-                                        <button className="delete-btn" onClick={() => handleDeleteUser(user.id)}>
+                                        <button className="delete-btn" onClick={() => deleteUser(user.id, loggedInUserId)}>
                                             Delete
                                         </button>
                                     </td>
@@ -126,7 +90,6 @@ const Users = () => {
                             </tr>
                         ))}
                     </tbody>
-
                 </table>
             ) : (
                 <p>No users found</p>

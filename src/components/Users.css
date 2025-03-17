@@ -1,5 +1,6 @@
 /* User Management Section */
 .users-container {
+    width: 100%;
     background: white;
     padding: 20px;
     border-radius: 10px;

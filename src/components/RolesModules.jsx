@@ -1,12 +1,16 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { toast } from "react-toastify";
 import API from "../services/api";
-import "./RolesModules.css"; // Import CSS file
+import { RoleContext } from "../context/RoleContext";
+import { ModuleContext } from "../context/ModuleContext";
+import { RoleModuleContext } from "../context/RoleModulesContext";
+import "./RolesModules.css";
 
 const RolesModules = () => {
-    const [roles, setRoles] = useState([]);
-    const [modules, setModules] = useState([]);
-    const [roleModules, setRoleModules] = useState([]);
+    const { roles, fetchRoles } = useContext(RoleContext);  // ✅ Get roles from context
+    const { modules, fetchModules } = useContext(ModuleContext); // ✅ Get modules from context
+    const { roleModules, fetchRoleModules } = useContext(RoleModuleContext);
+
     const [selectedRole, setSelectedRole] = useState("");
     const [selectedModule, setSelectedModule] = useState("");
     const [selectedPermission, setSelectedPermission] = useState("read");
@@ -14,67 +18,38 @@ const RolesModules = () => {
     const role = localStorage.getItem("role");
 
     useEffect(() => {
-        fetchRoles();
-        fetchModules();
-        fetchRoleModules();
+        fetchRoles(); // ✅ Ensure latest roles
+        fetchModules(); // ✅ Ensure latest modules
+        fetchRoleModules(); // ✅ Ensure latest role-module assignments
+        console.log("Modules from context:", modules); // ✅ Debugging
     }, []);
-
-    const fetchRoles = async () => {
-        try {
-            const response = await API.get("/roles");
-            setRoles(response.data);
-        } catch (error) {
-            toast.error("Failed to fetch roles");
-        }
-    };
-
-    const fetchModules = async () => {
-        try {
-            const response = await API.get("/modules");
-            setModules(response.data);
-        } catch (error) {
-            toast.error("Failed to fetch modules");
-        }
-    };
-
-    const fetchRoleModules = async () => {
-        try {
-            const response = await API.get("/role-modules");
-            setRoleModules(response.data);
-        } catch (error) {
-            toast.error("Failed to fetch role-modules");
-        }
-    };
 
     const handleAssignModule = async () => {
         if (!selectedRole || !selectedModule) {
             toast.error("Role and Module must be selected");
             return;
         }
-    
-        const requestData = { 
-            role_id: Number(selectedRole),  // Convert to number
-            module_ids: [Number(selectedModule)],  // Convert to array of numbers
-            permission: selectedPermission 
+
+        const requestData = {
+            role_id: Number(selectedRole),
+            module_ids: [Number(selectedModule)],
+            permission: selectedPermission,
         };
-    
-        console.log("Sending request to assign module:", requestData); // ✅ Debug
-    
+
         try {
             await API.post("/role-modules/assign", requestData);
-            toast.success("Module assigned to role successfully");
-            fetchRoleModules();
+            toast.success("Module assigned successfully");
+            fetchRoleModules(); // ✅ Fetch updated role-module data
         } catch (error) {
-            console.error("Error response:", error.response?.data || error.message); // ✅ Debug backend response
             toast.error("Failed to assign module");
+            console.error("Error assigning module:", error.response?.data || error.message);
         }
     };
-    
-    
 
     return (
         <div className="roles-modules-container">
             <h2>Role-Module Management</h2>
+
             {role === "admin" && (
                 <div className="assignment-form">
                     <select onChange={(e) => setSelectedRole(e.target.value)} className="dropdown">
@@ -86,10 +61,15 @@ const RolesModules = () => {
 
                     <select onChange={(e) => setSelectedModule(e.target.value)} className="dropdown">
                         <option value="">Select Module</option>
-                        {modules.map((m) => (
-                            <option key={m.id} value={m.id}>{m.name}</option>
-                        ))}
+                        {modules.length > 0 ? (
+                            modules.map((m) => (
+                                <option key={m.module_id} value={m.module_id}>{m.module_name}</option>
+                            ))
+                        ) : (
+                            <option disabled>No modules available</option>
+                        )}
                     </select>
+
 
                     <select onChange={(e) => setSelectedPermission(e.target.value)} className="dropdown">
                         <option value="read">Read</option>
@@ -111,13 +91,19 @@ const RolesModules = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {roleModules.map((rm) => (
-                        <tr key={rm.id ? `role-mod-${rm.id}` : `fallback-key-${rm.role_id}-${rm.module_id}`}>
-                            <td>{rm.role_name}</td>
-                            <td>{rm.module_name}</td>
-                            <td>{rm.permission}</td>
+                    {roleModules.length > 0 ? (
+                        roleModules.map((rm, index) => (
+                            <tr key={index}>
+                                <td>{rm.role_name}</td>
+                                <td>{rm.module_name}</td>
+                                <td>{rm.permission}</td>
+                            </tr>
+                        ))
+                    ) : (
+                        <tr>
+                            <td colSpan="3">No modules assigned</td>
                         </tr>
-                    ))}
+                    )}
                 </tbody>
             </table>
         </div>

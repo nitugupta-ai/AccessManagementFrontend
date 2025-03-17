@@ -1,157 +1,112 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { toast } from "react-toastify";
-import API from "../services/api";
-import "./Roles.css"; // Import the CSS file
+import { RoleContext } from "../context/RoleContext";
+import "./Roles.css";
 
 const Roles = () => {
-    const [roles, setRoles] = useState([]);
-    const [userRoles, setUserRoles] = useState([]); // Assigned roles for user
+    const { roles, addRole, updateRole, deleteRole } = useContext(RoleContext);
     const [roleName, setRoleName] = useState("");
-    const [editingRole, setEditingRole] = useState(null);
-    const [loading, setLoading] = useState(false);
-    const [forbidden, setForbidden] = useState(false);
+    const [editingRoleId, setEditingRoleId] = useState(null);
+    const [editedRoleName, setEditedRoleName] = useState("");
 
-    const role = localStorage.getItem("role");
     const userId = Number(localStorage.getItem("userId"));
-    const isAdmin = role === "admin";
+    const userRole = localStorage.getItem("role");
 
     useEffect(() => {
-        fetchRoles();
-        if (!isAdmin) {
-            fetchUserRoles(); // Fetch assigned roles only for non-admins
-        }
+        // No need to fetch roles here since RoleContext handles it
     }, []);
 
-    const fetchRoles = async () => {
-        try {
-            const response = await API.get("/roles");
-            if (!Array.isArray(response.data)) throw new Error("Invalid response format");
-            setRoles(response.data);
-        } catch (error) {
-            console.error("Error fetching roles:", error.response?.data || error.message);
-            toast.error("Failed to fetch roles");
-            setForbidden(error.response?.status === 403);
-        }
-    };
-
-    const fetchUserRoles = async () => {
-        try {
-            const response = await API.get(`/user-roles/${userId}`);
-            if (!Array.isArray(response.data)) throw new Error("Invalid response format");
-            setUserRoles(response.data);
-        } catch (error) {
-            console.error("Error fetching user roles:", error.response?.data || error.message);
-            toast.error("Failed to fetch assigned roles");
-        }
-    };
-
-    const handleCreateRole = async () => {
+    const handleCreateRole = () => {
         if (!roleName.trim()) {
             toast.error("Role name is required");
             return;
         }
-        setLoading(true);
-        try {
-            const response = await API.post("/roles", { name: roleName, created_by: userId });
-            setRoles([...roles, response.data]);
-            setRoleName("");
-            toast.success("Role created successfully");
-        } catch (error) {
-            toast.error("Failed to create role");
-        } finally {
-            setLoading(false);
-        }
+        addRole(roleName, userId);
+        setRoleName("");
     };
 
-    const handleDeleteRole = async (id) => {
-        setLoading(true);
-        try {
-            await API.delete(`/roles/${id}`);
-            setRoles(roles.filter(role => role.id !== id));
-            toast.success("Role deleted successfully");
-        } catch (error) {
-            toast.error("Failed to delete role");
-        } finally {
-            setLoading(false);
+    const handleUpdateRole = (roleId) => {
+        if (!editedRoleName.trim()) {
+            toast.error("Role name cannot be empty");
+            return;
         }
+        updateRole(roleId, editedRoleName);
+        setEditingRoleId(null);
+        setEditedRoleName("");
     };
 
-    const handleJoinRole = async (roleId) => {
-        setLoading(true);
-        try {
-            await API.post("/user-roles/join", { role_id: roleId, user_id: userId });
-            toast.success("Joined role successfully");
-            fetchUserRoles();
-        } catch (error) {
-            toast.error("Failed to join role");
-        } finally {
-            setLoading(false);
+    const handleDeleteRole = (roleId, createdBy) => {
+        if (userRole !== "admin" && createdBy !== userId) {
+            toast.error("You can only delete roles you created!");
+            return;
         }
+        deleteRole(roleId);
     };
-
-    const handleLeaveRole = async (roleId) => {
-        setLoading(true);
-        try {
-            await API.post("/user-roles/leave", { role_id: roleId, user_id: userId });
-            toast.success("Left role successfully");
-            fetchUserRoles();
-        } catch (error) {
-            toast.error("Failed to leave role");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    if (forbidden) {
-        return <h2 className="forbidden">Forbidden: You do not have access to this page</h2>;
-    }
 
     return (
         <div className="roles-container">
             <h2>Role Management</h2>
-            {isAdmin && (
-                <div className="input-container">
-                    <input
-                        type="text"
-                        value={roleName}
-                        onChange={(e) => setRoleName(e.target.value)}
-                        placeholder="Enter Role Name"
-                        className="role-input"
-                    />
-                    <button onClick={handleCreateRole} className="create-btn" disabled={loading}>
-                        {loading ? "Creating..." : "Create Role"}
-                    </button>
-                </div>
-            )}
+            <div className="input-container">
+                <input
+                    type="text"
+                    value={roleName}
+                    onChange={(e) => setRoleName(e.target.value)}
+                    placeholder="Enter Role Name"
+                    className="role-input"
+                />
+                <button onClick={handleCreateRole} className="create-btn">
+                    Create Role
+                </button>
+            </div>
 
             <div className="table-container">
-                <h2>All Available Roles</h2>
+                <h2>All Roles</h2>
                 <table className="roles-table">
                     <thead>
                         <tr>
                             <th>ID</th>
                             <th>Name</th>
+                            <th>Created By</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {roles.map(role => (
-                            <tr key={`role-${role?.id}`}>
-                                <td>{role?.id}</td>
-                                <td>{role?.name}</td>
+                        {roles.map((role) => (
+                            <tr key={role.id}>
+                                <td>{role.id}</td>
                                 <td>
-                                    {isAdmin ? (
-                                        <button onClick={() => handleDeleteRole(role.id)} className="delete-btn" disabled={loading}>
-                                            Delete
-                                        </button>
+                                    {editingRoleId === role.id ? (
+                                        <input
+                                            type="text"
+                                            value={editedRoleName}
+                                            onChange={(e) => setEditedRoleName(e.target.value)}
+                                        />
+                                    ) : (
+                                        role.name
+                                    )}
+                                </td>
+                                <td>{role.created_by}</td>
+                                <td>
+                                    {editingRoleId === role.id ? (
+                                        <>
+                                            <button onClick={() => handleUpdateRole(role.id)}>Save</button>
+                                            <button onClick={() => setEditingRoleId(null)}>Cancel</button>
+                                        </>
                                     ) : (
                                         <>
-                                            <button onClick={() => handleJoinRole(role.id)} className="join-btn" disabled={loading}>
-                                                Join
-                                            </button>
-                                            <button onClick={() => handleLeaveRole(role.id)} className="leave-btn" disabled={loading}>
-                                                Leave
-                                            </button>
+                                            {(userRole === "admin" || role.created_by === userId) && (
+                                                <>
+                                                    <button onClick={() => {
+                                                        setEditingRoleId(role.id);
+                                                        setEditedRoleName(role.name);
+                                                    }}>
+                                                        Edit
+                                                    </button>
+                                                    <button onClick={() => handleDeleteRole(role.id, role.created_by)}>
+                                                        Delete
+                                                    </button>
+                                                </>
+                                            )}
                                         </>
                                     )}
                                 </td>
@@ -160,34 +115,6 @@ const Roles = () => {
                     </tbody>
                 </table>
             </div>
-
-            {!isAdmin && (
-                <div className="table-container">
-                    <h2>My Assigned Roles</h2>
-                    <table className="roles-table">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Name</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {userRoles.map(role => (
-                                <tr key={`my-role-${role?.id}`}>
-                                    <td>{role?.id}</td>
-                                    <td>{role?.name}</td>
-                                    <td>
-                                        <button onClick={() => handleLeaveRole(role.id)} className="leave-btn" disabled={loading}>
-                                            Leave
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            )}
         </div>
     );
 };

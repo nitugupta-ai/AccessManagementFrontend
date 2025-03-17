@@ -15,9 +15,17 @@ const Login = () => {
         e.preventDefault();
         try {
             const { data } = await API.post("/auth/login", formData);
+            
             localStorage.setItem("token", data.token);
             localStorage.setItem("role", jwtDecode(data.token).role);
-            
+            const decodedToken = jwtDecode(data.token);
+        console.log("🔍 Decoded Token:", decodedToken);
+        if (decodedToken.id) {
+            localStorage.setItem("userId", decodedToken.id.toString()); // Ensure it's stored as a string
+            console.log("✅ Stored User ID:", localStorage.getItem("userId")); // Debugging
+        } else {
+            console.error("❌ User ID is missing in the token");
+        }
             toast.success("Login successful!");
             navigate("/dashboard");
         } catch (error) {
